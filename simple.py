@@ -13,7 +13,7 @@ def run_cli(cli_args):
     sys.argv = old_argv
 
 def swap_faces(source_image_path, target_image_path, enhance=True):
-  provider = 'coreml'
+  provider = 'cuda'
 
   output_image_file = tempfile.NamedTemporaryFile(suffix='.png')
   output_image_path = output_image_file.name
