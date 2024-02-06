@@ -84,6 +84,8 @@ def get_frame_processor() -> Any:
 			model_path = get_options('model').get('path')
 			FRAME_PROCESSOR = onnxruntime.InferenceSession(model_path, providers = [ 'CUDAExecutionProvider' ])
 			# FRAME_PROCESSOR = onnxruntime.InferenceSession(model_path, providers = facefusion.globals.execution_providers)
+		model_path = get_options('model').get('path')
+		FRAME_PROCESSOR = onnxruntime.InferenceSession(model_path, providers = [ 'CPUExecutionProvider' ])
 	return FRAME_PROCESSOR
 
 
