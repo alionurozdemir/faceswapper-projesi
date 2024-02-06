@@ -12,7 +12,7 @@ def run_cli(cli_args):
   finally:
     sys.argv = old_argv
 
-def swap_faces(source_image_path, target_image_path, enhance=True):
+def swap_faces(source_image_path, target_image_path, enhance_face=True, enhance_frame=True):
   provider = 'cuda'
 
   target_ext = target_image_path.split('.')[-1]
@@ -33,10 +33,15 @@ def swap_faces(source_image_path, target_image_path, enhance=True):
   ]
 
   cli_args += [ '--frame-processors', 'face_swapper' ]
-  if enhance:
+    
+  if enhance_face:
+    cli_args += [
+      'face_enhancer',
+    ]
+
+  if enhance_frame:
     cli_args += [
       'frame_enhancer',
-      'face_enhancer',
     ]
 
   from facefusion.processors.frame.core import clear_frame_processors_modules
@@ -53,6 +58,7 @@ if __name__ == "__main__":
           gr.Image(type="filepath"),
           gr.Image(type="filepath"),
           gr.Checkbox(label="Enhance Face", value=True),
+          gr.Checkbox(label="Enhance Frame", value=True),
       ],
       outputs=[
           gr.Image(
