@@ -15,7 +15,8 @@ def run_cli(cli_args):
 def swap_faces(source_image_path, target_image_path, enhance=True):
   provider = 'cuda'
 
-  output_image_file = tempfile.NamedTemporaryFile(suffix='.png')
+  target_ext = target_image_path.split('.')[-1]
+  output_image_file = tempfile.NamedTemporaryFile(suffix=f'.{target_ext}')
   output_image_path = output_image_file.name
 
   print(source_image_path)
