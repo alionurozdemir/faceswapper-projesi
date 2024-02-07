@@ -53,22 +53,23 @@ def swap_faces(source_image_path, target_image_path, enhance_face=True, enhance_
 
   return Image.open(output_image_path)
 
+demo = gr.Interface(
+  fn=swap_faces,
+  inputs=[
+      gr.Image(type="filepath"),
+      gr.Image(type="filepath"),
+      gr.Checkbox(label="Enhance Face", value=True),
+      gr.Checkbox(label="Enhance Frame", value=True),
+  ],
+  outputs=[
+      gr.Image(
+        type="pil",
+        show_download_button=True,
+      )
+  ],
+  title="Swap Faces",
+  allow_flagging="never"
+)
+
 if __name__ == "__main__":
-    demo = gr.Interface(
-      fn=swap_faces,
-      inputs=[
-          gr.Image(type="filepath"),
-          gr.Image(type="filepath"),
-          gr.Checkbox(label="Enhance Face", value=True),
-          gr.Checkbox(label="Enhance Frame", value=True),
-      ],
-      outputs=[
-          gr.Image(
-            type="pil",
-            show_download_button=True,
-          )
-      ],
-      title="Swap Faces",
-      allow_flagging="never"
-    )
     demo.launch()
