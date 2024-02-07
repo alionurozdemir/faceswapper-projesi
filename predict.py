@@ -32,7 +32,7 @@ if sys.platform == 'darwin':
     cache_file_dir = '/tmp/file'
 else:
     cache_file_dir = '/src/file'
-os.makedirs(cache_file_dir, exist_ok=True)
+# os.makedirs(cache_file_dir, exist_ok=True)
 
 
 def img_url_to_local_path(img_url, file_path=None):
