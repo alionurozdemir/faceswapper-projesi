@@ -30,7 +30,8 @@ def swap_faces(source_image_path, target_image_path, enhance_face=True, enhance_
     '-o', output_image_path,
     '--output-image-quality', '80',
     '--execution-providers', provider,
-    '--face-detector-model', 'yunet',
+    # '--face-detector-model', 'yunet',
+    '--face-analyser-order', 'large-small',
   ]
 
   cli_args += [ '--frame-processors', 'face_swapper' ]
