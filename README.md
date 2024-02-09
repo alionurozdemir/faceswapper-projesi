@@ -5,7 +5,7 @@ colorFrom: purple
 colorTo: green
 sdk: gradio
 sdk_version: 4.7.1
-app_file: simple.py
+app_file: predict.py
 pinned: false
 license: mit
 ---
