@@ -4,7 +4,7 @@ emoji: 😻
 colorFrom: purple
 colorTo: green
 sdk: gradio
-sdk_version: 4.7.1
+sdk_version: 5.9.0
 app_file: predict.py
 pinned: false
 license: mit
