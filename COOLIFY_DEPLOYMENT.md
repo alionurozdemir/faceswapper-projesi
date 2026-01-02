@@ -169,6 +169,51 @@ izleyebilirsiniz.
 - Firewall kurallarını kontrol edin
 - Reverse proxy ayarlarını kontrol edin
 
+### Problem: Build Timeout / Gateway Timeout (504)
+
+**Build Timeout Çözümü**:
+- Application Settings → Advanced bölümünde "Build Timeout" değerini artırın (örn: 30 dakika → 60 dakika)
+- Memory limit'i kontrol edin (build sırasında yeterli RAM olduğundan emin olun)
+
+**Gateway Timeout (504) Çözümü**:
+
+Coolify dokümantasyonuna göre ([Gateway Timeout Troubleshooting](https://coolify.io/docs/troubleshoot/applications/gateway-timeout)):
+
+#### Traefik Proxy (Varsayılan) İçin:
+
+1. **Servers** → **[YourServer]** → **Proxy** bölümüne gidin
+2. **Command** bölümüne şu ayarları ekleyin:
+
+```yaml
+command:
+  - "--entrypoints.https.transport.respondingTimeouts.readTimeout=5m"
+  - "--entrypoints.https.transport.respondingTimeouts.writeTimeout=5m"
+  - "--entrypoints.https.transport.respondingTimeouts.idleTimeout=5m"
+```
+
+Bu ayarlar 5 dakikalık timeout sağlar. İhtiyacınıza göre artırabilirsiniz (örn: `10m`, `15m`).
+
+#### Caddy Proxy İçin:
+
+Application'ın **Container Labels** bölümüne şu label'ları ekleyin:
+
+```yaml
+caddy.servers.timeouts.read_body=300s
+caddy.servers.timeouts.read_header=300s
+caddy.servers.timeouts.write=300s
+caddy.servers.timeouts.idle=5m
+```
+
+**Not**: Caddy varsayılan olarak timeout'suz çalışır, bu yüzden genellikle timeout sorunu yaşanmaz.
+
+#### Önemli Notlar:
+
+- **Build timeout** ve **Gateway timeout** farklı şeylerdir:
+  - **Build timeout**: Docker build işleminin ne kadar sürebileceği
+  - **Gateway timeout**: Uygulamanın HTTP isteklerine ne kadar sürede cevap vermesi gerektiği
+- FaceSwapper gibi AI uygulamaları için uzun işlem süreleri normaldir, timeout'ları buna göre ayarlayın
+- Büyük dosya upload'ları için chunked upload implementasyonu düşünülebilir
+
 ## Optimizasyon İpuçları
 
 ### 1. Model Dosyalarını Optimize Etme
