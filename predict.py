@@ -155,7 +155,7 @@ class Predictor:
         cache_days = 10
         weight = 0.5
 
-        device = 'cuda' if torch.cuda.is_available() else 'mps'
+        device = 'cpu'  # CPU-only sunucu için optimize edildi
         logger.info(f'device: {device}, det_thresh:{det_thresh}')
 
         try:
