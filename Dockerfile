@@ -12,20 +12,34 @@ WORKDIR /app
 COPY requirements.txt .
 
 # CPU-only versiyonları için bağımlılıkları yükle
-# PyTorch CPU versiyonu için extra-index-url kullanıyoruz (diğer paketler PyPI'dan gelecek)
+# Paketleri aşamalı yükleyerek build timeout riskini azaltıyoruz
+# Önce temel paketler
 RUN pip install --no-cache-dir --user \
     --extra-index-url https://download.pytorch.org/whl/cpu \
-    basicsr==1.4.2 \
-    filetype==1.2.0 \
-    gradio==3.50.2 \
     numpy==1.26.1 \
-    onnx==1.15.0 \
-    onnxruntime==1.16.3 \
-    opencv-python==4.8.1.78 \
+    filetype==1.2.0 \
     psutil==5.9.6 \
+    tqdm==4.66.1
+
+# Sonra PyTorch CPU versiyonu
+RUN pip install --no-cache-dir --user \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    torch==2.1.0
+
+# ONNX paketleri
+RUN pip install --no-cache-dir --user \
+    onnx==1.15.0 \
+    onnxruntime==1.16.3
+
+# OpenCV ve görüntü işleme paketleri
+RUN pip install --no-cache-dir --user \
+    opencv-python==4.8.1.78
+
+# Son olarak büyük paketler (basicsr, gradio, realesrgan, insightface)
+RUN pip install --no-cache-dir --user \
+    basicsr==1.4.2 \
+    gradio==3.50.2 \
     realesrgan==0.3.0 \
-    torch==2.1.0 \
-    tqdm==4.66.1 \
     insightface==0.7.3
 
 # Final stage - minimal image
