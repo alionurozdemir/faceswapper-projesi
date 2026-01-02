@@ -16,24 +16,46 @@ Bu rehber, FaceSwapper uygulamasını Coolify platformunda CPU-only bir sunucuda
 1. Coolify dashboard'una giriş yapın
 2. **"Resources"** veya **"Applications"** bölümüne gidin
 3. **"New Resource"** veya **"New Application"** butonuna tıklayın
-4. **"Docker Compose"** veya **"Dockerfile"** seçeneğini seçin
 
-### 2. Git Repository Bağlantısı
+### 1.1. Deployment Yöntemi Seçimi
+
+**ÖNEMLİ:** Aşağıdaki seçeneklerden birini seçin:
+
+#### ✅ **ÖNERİLEN: Git Based → Public Repository**
+- Repository'niz public ise bu seçeneği kullanın
+- Coolify Git repository'nizden Dockerfile'ı otomatik bulur ve build eder
+- En kolay ve otomatik yöntem
+
+#### ✅ **Alternatif: Git Based → Private Repository**
+Repository'niz private ise:
+- **GitHub App** ile bağlantı (önerilen): GitHub hesabınızı Coolify'a bağlayın
+- **Deploy Key** ile bağlantı: SSH key oluşturup repository'ye ekleyin
+
+#### ❌ **KULLANMAYIN: Docker Based → Dockerfile**
+- Bu seçenek Git repository olmadan sadece Dockerfile için kullanılır
+- Bizim durumumuzda Git repository kullanacağımız için uygun değil
+
+**Seçim Yaptıktan Sonra:**
+- Repository URL'nizi girin
+- Branch: `main` (veya kullandığınız branch)
+- Coolify otomatik olarak Dockerfile'ı bulacaktır
+
+### 2. Git Repository Bağlantısı (Git Based seçtiyseniz)
 
 1. **Source** bölümünde:
-   - **Repository URL**: Git repository URL'nizi girin
-   - **Branch**: `main` veya `master` (veya kullandığınız branch)
-   - **Dockerfile Path**: `Dockerfile` (varsayılan)
+   - **Repository URL**: Git repository URL'nizi girin (örn: `https://github.com/alionurozdemir/faceswapper-projesi`)
+   - **Branch**: `main` (veya kullandığınız branch)
+   - **Dockerfile Path**: `Dockerfile` (varsayılan - Coolify otomatik bulur)
 
 ### 3. Build Ayarları
 
-**Build Settings** bölümünde:
+**Build Settings** bölümünde (genellikle otomatik ayarlanır):
 
-```
-Build Pack: Dockerfile
-Dockerfile Location: Dockerfile
-Build Command: (boş bırakın, Dockerfile otomatik kullanılacak)
-```
+- **Build Pack**: `Dockerfile` (otomatik algılanır)
+- **Dockerfile Location**: `Dockerfile` (proje root'unda)
+- **Build Command**: (boş bırakın, Dockerfile otomatik kullanılacak)
+
+**Not:** Coolify genellikle Dockerfile'ı otomatik bulur, manuel ayar gerekmez.
 
 ### 4. Environment Variables (Ortam Değişkenleri)
 
