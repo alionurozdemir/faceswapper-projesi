@@ -12,7 +12,9 @@ WORKDIR /app
 COPY requirements.txt .
 
 # CPU-only versiyonları için bağımlılıkları yükle
+# PyTorch CPU versiyonu için extra-index-url kullanıyoruz (diğer paketler PyPI'dan gelecek)
 RUN pip install --no-cache-dir --user \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
     basicsr==1.4.2 \
     filetype==1.2.0 \
     gradio==3.50.2 \
@@ -23,7 +25,6 @@ RUN pip install --no-cache-dir --user \
     psutil==5.9.6 \
     realesrgan==0.3.0 \
     torch==2.1.0 \
-    --index-url https://download.pytorch.org/whl/cpu \
     tqdm==4.66.1 \
     insightface==0.7.3
 
