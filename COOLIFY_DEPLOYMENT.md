@@ -203,6 +203,12 @@ izleyebilirsiniz.
 - Maximum Memory Limit: `7168` (MB)
 - Maximum Swap Limit: `0` (MB)
 
+**Not:** Eğer ayarlar doğru görünüyorsa ama hata devam ediyorsa:
+- Coolify'ın bu ayarları Docker Compose'a aktarmadığı bir bug olabilir
+- **Save** butonuna tıklayıp tekrar kontrol edin
+- Coolify'ı yeniden başlatmayı deneyin
+- Veya Resource Limits'i silip tekrar ekleyin
+
 ### Problem: Yavaş Performans
 
 **Çözüm**:

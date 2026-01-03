@@ -38,13 +38,21 @@ RUN pip install --no-cache-dir --user \
     opencv-python==4.8.1.78
 
 # Son olarak büyük paketler (basicsr, gradio, realesrgan, insightface)
-# PyTorch zaten yüklü olduğu için GPU bağımlılıklarını çekmeyecek
+# PyTorch zaten yüklü olduğu için GPU bağımlılıklarını çekmemeli
 RUN pip install --no-cache-dir --user \
     --extra-index-url https://download.pytorch.org/whl/cpu \
     basicsr==1.4.2 \
     gradio==3.50.2 \
     realesrgan==0.3.0 \
     insightface==0.7.3
+
+# PyTorch'un GPU versiyonuna upgrade edilmesini engellemek için
+# Son adımda PyTorch CPU versiyonunu force reinstall yapıyoruz
+RUN pip uninstall -y torch torchvision 2>/dev/null || true && \
+    pip install --no-cache-dir --user \
+    --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.1.0+cpu \
+    torchvision==0.16.0+cpu
 
 # Final stage - minimal image
 FROM python:3.10-slim
