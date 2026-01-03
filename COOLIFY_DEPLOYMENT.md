@@ -315,3 +315,187 @@ Sorun yaşarsanız:
 - 8GB RAM yeterli olmalıdır, ancak yoğun kullanımda izleme yapın
 - Model dosyaları cache'lenir, sonraki istekler daha hızlı olacaktır
 
+---
+
+## Bu Konuşmada Yapılan Değişiklikler ve Optimizasyonlar
+
+Bu bölüm, FaceSwapper projesinin CPU-only Ubuntu sunucuda Docker ile çalıştırılması için yapılan tüm optimizasyonları ve düzeltmeleri içerir. Bu bilgiler, gelecekte benzer bir deployment yapılırken referans olarak kullanılabilir.
+
+### 1. Dockerfile Optimizasyonu
+
+**Başlangıç Durumu:**
+- Basit Dockerfile, GPU bağımlılıkları içeriyordu
+- `libgl1-mesa-glx` paketi kullanılıyordu (Debian trixie'de mevcut değil)
+- Tüm paketler tek seferde yükleniyordu (timeout riski)
+
+**Yapılan Değişiklikler:**
+
+#### a) Multi-Stage Build
+- İki aşamalı build yapısı oluşturuldu:
+  - **Builder stage**: Build bağımlılıkları ve Python paketleri
+  - **Final stage**: Minimal runtime image
+- Image boyutu küçültüldü
+
+#### b) Debian Trixie Uyumluluğu
+- `libgl1-mesa-glx` → `libgl1` (yeni Debian versiyonunda mevcut)
+- `FROM ... as builder` → `FROM ... AS builder` (büyük harf uyarısı düzeltildi)
+
+#### c) PyTorch CPU Versiyonu
+- PyTorch CPU wheel repository'si eklendi
+- `--extra-index-url https://download.pytorch.org/whl/cpu` kullanıldı
+- **Önemli:** `--index-url` yerine `--extra-index-url` kullanıldı (PyPI + PyTorch repo desteği)
+
+#### d) Paketlerin Aşamalı Yüklenmesi
+Build timeout riskini azaltmak için paketler gruplara ayrıldı:
+1. Temel paketler: `numpy`, `filetype`, `psutil`, `tqdm`
+2. PyTorch CPU: `torch==2.1.0`
+3. ONNX paketleri: `onnx`, `onnxruntime`
+4. OpenCV: `opencv-python`
+5. Büyük paketler: `basicsr`, `gradio`, `realesrgan`, `insightface`
+
+**Sonuç:** Her aşama ayrı cache'lenir, build timeout riski azalır.
+
+### 2. Requirements.txt Güncellemesi
+
+**Değişiklik:**
+- `onnxruntime-gpu==1.16.3` → `onnxruntime==1.16.3` (CPU versiyonu)
+
+**Neden:** GPU bağımlılığı kaldırıldı, CPU-only sunucu için uygun hale getirildi.
+
+### 3. Kod Optimizasyonları
+
+#### a) simple.py
+- `provider = 'cuda'` → `provider = 'cpu'`
+- FaceFusion CLI için CPU execution provider kullanılıyor
+
+#### b) predict.py
+- `device = 'cuda' if torch.cuda.is_available() else 'mps'` → `device = 'cpu'`
+- CPU-only sunucu için optimize edildi
+
+### 4. .dockerignore Dosyası
+
+Yeni dosya oluşturuldu:
+- Gereksiz dosyalar build'e dahil edilmiyor
+- Build context boyutu küçültüldü
+- Build süresi azaldı
+
+### 5. Coolify Deployment Konfigürasyonu
+
+#### a) Git Based Deployment
+- **Seçilen Yöntem:** Git Based → Public Repository
+- Repository: `https://github.com/alionurozdemir/faceswapper-projesi`
+- Branch: `main`
+- Dockerfile otomatik algılanıyor
+
+#### b) Environment Variables
+Aşağıdaki environment variables eklendi:
+```
+OMP_NUM_THREADS=2
+MKL_NUM_THREADS=2
+NUMEXPR_NUM_THREADS=2
+OPENBLAS_NUM_THREADS=2
+ONNXRUNTIME_EXECUTION_PROVIDERS=CPUExecutionProvider
+CUDA_VISIBLE_DEVICES= (boş)
+PYTHONUNBUFFERED=1
+```
+
+**Not:** `CUDA_VISIBLE_DEVICES` değeri boş bırakılmalı (hiçbir şey yazılmamalı).
+
+#### c) Resource Limits (4 VCPU, 8GB RAM Sunucu İçin)
+- **Number of CPUs:** `4`
+- **CPU sets:** `0-3` (veya boş)
+- **CPU Weight:** `1024` (varsayılan)
+- **Soft Memory Limit:** `6144` MB (6GB)
+- **Swappiness:** `60` (varsayılan)
+- **Maximum Memory Limit:** `7168` MB (7GB)
+- **Maximum Swap Limit:** `0` (swap kullanılmıyor)
+
+#### d) Advanced Configuration
+- ✅ **Auto Deploy:** Açık
+- ❌ **Preview Deployments:** Kapalı
+- ❌ **Disable Build Cache:** Kapalı (cache build süresini kısaltır)
+- ✅ **Inject Build Args to Dockerfile:** Açık
+- ✅ **LFS:** Açık (model dosyaları için önemli)
+- ✅ **Shallow Clone:** Açık (daha hızlı)
+- ❌ **Enable GPU:** KAPALI (CPU-only için kritik)
+
+### 6. Timeout Ayarları
+
+#### a) Build Timeout
+- Advanced Configuration sayfasında görünmüyor
+- Dockerfile optimizasyonları ile timeout riski azaltıldı
+- Paketlerin aşamalı yüklenmesi ile build süresi optimize edildi
+
+#### b) Gateway Timeout (504)
+Coolify dokümantasyonuna göre ([Gateway Timeout Troubleshooting](https://coolify.io/docs/troubleshoot/applications/gateway-timeout)):
+
+**Traefik Proxy için:**
+Server → Proxy → Command bölümüne eklenecek:
+```yaml
+command:
+  - "--entrypoints.https.transport.respondingTimeouts.readTimeout=5m"
+  - "--entrypoints.https.transport.respondingTimeouts.writeTimeout=5m"
+  - "--entrypoints.https.transport.respondingTimeouts.idleTimeout=5m"
+```
+
+**Caddy Proxy için:**
+Application Container Labels'e eklenecek:
+```yaml
+caddy.servers.timeouts.read_body=300s
+caddy.servers.timeouts.read_header=300s
+caddy.servers.timeouts.write=300s
+caddy.servers.timeouts.idle=5m
+```
+
+### 7. Karşılaşılan Sorunlar ve Çözümleri
+
+#### Sorun 1: `libgl1-mesa-glx` Paketi Bulunamadı
+**Hata:** `E: Package 'libgl1-mesa-glx' has no installation candidate`
+**Çözüm:** `libgl1-mesa-glx` → `libgl1` (Debian trixie uyumluluğu)
+
+#### Sorun 2: `basicsr` Paketi PyTorch Repository'sinde Bulunamadı
+**Hata:** `ERROR: Could not find a version that satisfies the requirement basicsr==1.4.2`
+**Çözüm:** `--index-url` → `--extra-index-url` (PyPI + PyTorch repo desteği)
+
+#### Sorun 3: Build Timeout
+**Hata:** Build işlemi timeout oluyor, exit code 255
+**Çözüm:** Paketler aşamalı yüklenmeye başlandı (5 aşamaya bölündü)
+
+### 8. Git İşlemleri
+
+Tüm değişiklikler GitHub'a push edildi:
+- Dockerfile optimizasyonları
+- requirements.txt güncellemesi
+- simple.py ve predict.py CPU optimizasyonları
+- .dockerignore eklenmesi
+- COOLIFY_DEPLOYMENT.md rehberi oluşturulması ve güncellemeleri
+
+### 9. Son Durum
+
+**Başarılı Olması Gereken Yapılandırma:**
+- ✅ CPU-only optimizasyonu tamamlandı
+- ✅ Dockerfile multi-stage build ile optimize edildi
+- ✅ Paketler aşamalı yükleniyor (timeout riski azaltıldı)
+- ✅ Environment variables ayarlandı
+- ✅ Resource limits optimize edildi
+- ✅ Advanced Configuration önerileri uygulandı
+
+**Beklenen Sonuç:**
+- Build başarılı olmalı
+- Uygulama CPU-only sunucuda çalışmalı
+- Port 7860'da erişilebilir olmalı
+- Model dosyaları cache'lenmeli
+
+### 10. Gelecek Referans İçin Notlar
+
+Bu deployment sürecinde öğrenilen önemli noktalar:
+
+1. **Debian Trixie Uyumluluğu:** Yeni Debian versiyonlarında paket isimleri değişebilir
+2. **PyTorch CPU Installation:** `--extra-index-url` kullanılmalı, `--index-url` değil
+3. **Build Timeout:** Büyük paketler için aşamalı yükleme stratejisi kullanılmalı
+4. **CPU-only Deployment:** Tüm GPU referansları kaldırılmalı (kod, environment variables, Dockerfile)
+5. **Coolify Configuration:** Advanced ayarlarda GPU mutlaka kapalı olmalı
+6. **Resource Limits:** 8GB RAM için 7GB limit, 1GB sistem için ayrılmalı
+
+Bu bilgiler, benzer bir deployment yapılırken veya sorun giderme sırasında referans olarak kullanılabilir.
+
