@@ -21,10 +21,12 @@ RUN pip install --no-cache-dir --user \
     psutil==5.9.6 \
     tqdm==4.66.1
 
-# Sonra PyTorch CPU versiyonu
+# PyTorch CPU versiyonunu ÖNCE yükle (diğer paketlerin GPU versiyonunu çekmesini önlemek için)
+# +cpu suffix ile CPU versiyonunu zorunlu kılıyoruz
 RUN pip install --no-cache-dir --user \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
-    torch==2.1.0
+    --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.1.0+cpu \
+    torchvision==0.16.0+cpu
 
 # ONNX paketleri
 RUN pip install --no-cache-dir --user \
@@ -36,7 +38,9 @@ RUN pip install --no-cache-dir --user \
     opencv-python==4.8.1.78
 
 # Son olarak büyük paketler (basicsr, gradio, realesrgan, insightface)
+# PyTorch zaten yüklü olduğu için GPU bağımlılıklarını çekmeyecek
 RUN pip install --no-cache-dir --user \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
     basicsr==1.4.2 \
     gradio==3.50.2 \
     realesrgan==0.3.0 \

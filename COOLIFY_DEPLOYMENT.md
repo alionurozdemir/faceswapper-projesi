@@ -182,6 +182,27 @@ izleyebilirsiniz.
 - CPU thread sayısını azaltın (OMP_NUM_THREADS=1)
 - Logları detaylı inceleyin
 
+### Problem: "Minimum memory limit allowed is 6MB" Hatası
+
+**Hata:** `Error response from daemon: Minimum memory limit allowed is 6MB`
+
+**Neden:** Resource Limits'te ayarlanan memory limit değeri doğru uygulanmamış veya çok düşük bir değer girilmiş.
+
+**Çözüm:**
+1. **Resource Limits** bölümüne gidin
+2. **Maximum Memory Limit** alanını kontrol edin:
+   - Değer **MB cinsinden** girilmelidir (örn: `7168` = 7GB)
+   - **GB cinsinden değil** (örn: `7` veya `7GB` yazmayın)
+   - Minimum değer: `6144` (6GB) veya daha yüksek
+3. **Soft Memory Limit** değerini de kontrol edin (örn: `6144`)
+4. **Save** butonuna tıklayın
+5. **Redeploy** yapın
+
+**Doğru Değerler (8GB RAM sunucu için):**
+- Soft Memory Limit: `6144` (MB)
+- Maximum Memory Limit: `7168` (MB)
+- Maximum Swap Limit: `0` (MB)
+
 ### Problem: Yavaş Performans
 
 **Çözüm**:
