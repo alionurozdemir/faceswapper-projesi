@@ -57,6 +57,33 @@ Repository'niz private ise:
 
 **Not:** Coolify genellikle Dockerfile'ı otomatik bulur, manuel ayar gerekmez.
 
+### 3.1. Advanced Configuration Ayarları
+
+**Configuration** → **Advanced** bölümünde önerilen ayarlar:
+
+#### General Ayarları:
+- ✅ **Auto Deploy**: Açık (otomatik deploy için)
+- ❌ **Preview Deployments**: Kapalı (production için gerekli değil)
+- ❌ **Disable Build Cache**: Kapalı (cache build süresini kısaltır)
+- ✅ **Inject Build Args to Dockerfile**: Açık (environment variables için gerekli)
+- ❌ **Include Source Commit in Build**: Kapalı (opsiyonel)
+- ✅ **Force Https**: Açık (güvenlik için)
+- ✅ **Enable Gzip Compression**: Açık (performans için)
+- ✅ **Strip Prefixes**: Açık (URL routing için)
+
+#### Git Ayarları:
+- ✅ **Submodules**: Açık (eğer submodule kullanıyorsanız)
+- ✅ **LFS**: Açık (model dosyaları için önemli - büyük dosyalar için)
+- ✅ **Shallow Clone**: Açık (daha hızlı clone için)
+
+#### GPU Ayarları:
+- ❌ **Enable GPU**: KAPALI (CPU-only sunucu için mutlaka kapalı olmalı)
+
+**Önemli:** Build timeout ayarı bu sayfada görünmüyorsa, muhtemelen:
+- Coolify'ın daha yeni versiyonlarında farklı bir yerde olabilir
+- Veya varsayılan timeout yeterli olabilir
+- Build timeout sorunu yaşıyorsanız, Dockerfile optimizasyonları yeterli olabilir
+
 ### 4. Environment Variables (Ortam Değişkenleri)
 
 **Environment Variables** bölümüne şunları ekleyin:
