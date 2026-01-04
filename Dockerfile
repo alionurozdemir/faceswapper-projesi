@@ -10,8 +10,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-# Install dependencies into a user directory to easily copy later
-# Using --extra-index-url to prioritize CPU wheels for PyTorch
+# Install dependencies
 RUN pip install --no-cache-dir --user -r requirements.txt
 
 # Final stage
@@ -19,6 +18,8 @@ FROM python:3.10-slim
 
 # Install runtime libraries required by OpenCV and others
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ffmpeg \
     libgl1 \
     libglib2.0-0 \
     libgomp1 \
@@ -45,6 +46,21 @@ ENV OMP_NUM_THREADS=2 \
 
 # Expose the application port
 EXPOSE 7860
+
+# DEĞİŞİKLİK: CURL komutuna '--retry 5', '-L' (follow redirects) ve '-f' (fail on error) eklendi.
+# -f parametresi kritik: HTTP hatası (404/500) alırsa dosya yazmaz, hata verir.
+# Böylece "InvalidProtobuf" hatasına sebep olan bozuk/HTML dosyalar oluşmaz.
+RUN mkdir -p /app/.assets/models && \
+    echo "Downloading RetinaFace..." && \
+    curl -fL --retry 5 -o /app/.assets/models/retinaface_10g.onnx https://huggingface.co/facefusion/models/resolve/main/retinaface_10g.onnx && \
+    echo "Downloading Face Landmarker..." && \
+    curl -fL --retry 5 -o /app/.assets/models/face_landmarker_68_5.onnx https://huggingface.co/facefusion/models/resolve/main/face_landmarker_68_5.onnx && \
+    echo "Downloading 2dfan4..." && \
+    curl -fL --retry 5 -o /app/.assets/models/2dfan4.onnx https://huggingface.co/facefusion/models/resolve/main/2dfan4.onnx && \
+    echo "Downloading Inswapper (THE FACE SWAPPER)..." && \
+    curl -fL --retry 5 -o /app/.assets/models/inswapper_128.onnx https://huggingface.co/facefusion/models/resolve/main/inswapper_128.onnx && \
+    echo "Downloading GFPGAN (FACE ENHANCER)..." && \
+    curl -fL --retry 5 -o /app/.assets/models/GFPGANv1.4.pth https://huggingface.co/facefusion/models/resolve/main/GFPGANv1.4.pth
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
