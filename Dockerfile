@@ -65,7 +65,9 @@ RUN mkdir -p /app/.assets/models && \
     echo "Downloading Gender Age..." && \
     curl -fL --retry 5 -o /app/.assets/models/gender_age.onnx https://huggingface.co/crj/dl-ws/resolve/main/gender_age.onnx && \
     echo "Downloading GFPGAN (FACE ENHANCER)..." && \
-    curl -fL --retry 5 -o /app/.assets/models/GFPGANv1.4.pth https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth
+    curl -fL --retry 5 -o /app/.assets/models/gfpgan_1.4.onnx https://huggingface.co/facefusion/models-3.0.0/resolve/main/gfpgan_1.4.onnx && \
+    echo "Downloading RealESRGAN (FRAME ENHANCER)..." && \
+    curl -fL --retry 5 -o /app/.assets/models/real_esrgan_x2plus.pth https://huggingface.co/dtarnow/UPscaler/resolve/main/RealESRGAN_x2plus.pth
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
