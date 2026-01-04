@@ -62,6 +62,8 @@ RUN mkdir -p /app/.assets/models && \
     curl -fL --retry 5 -o /app/.assets/models/inswapper_128.onnx https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/inswapper_128.onnx && \
     echo "Downloading ArcFace..." && \
     curl -fL --retry 5 -o /app/.assets/models/arcface_w600k_r50.onnx https://huggingface.co/crj/dl-ws/resolve/main/arcface_w600k_r50.onnx && \
+    echo "Downloading Gender Age..." && \
+    curl -fL --retry 5 -o /app/.assets/models/gender_age.onnx https://huggingface.co/crj/dl-ws/resolve/main/gender_age.onnx && \
     echo "Downloading GFPGAN (FACE ENHANCER)..." && \
     curl -fL --retry 5 -o /app/.assets/models/GFPGANv1.4.pth https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth
 
