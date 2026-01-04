@@ -13,6 +13,7 @@ def run_cli(cli_args):
     sys.argv = old_argv
 
 def swap_faces(source_image_path, target_image_path, enhance_face=True, enhance_frame=True):
+  # FORCE CPU EXPLICITLY
   provider = 'cpu'
 
   target_ext = target_image_path.split('.')[-1]
@@ -72,4 +73,4 @@ demo = gr.Interface(
 )
 
 if __name__ == "__main__":
-    demo.launch()
+    demo.launch(server_name="0.0.0.0", server_port=7860)
