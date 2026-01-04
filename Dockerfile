@@ -50,17 +50,18 @@ EXPOSE 7860
 # DEĞİŞİKLİK: CURL komutuna '--retry 5', '-L' (follow redirects) ve '-f' (fail on error) eklendi.
 # -f parametresi kritik: HTTP hatası (404/500) alırsa dosya yazmaz, hata verir.
 # Böylece "InvalidProtobuf" hatasına sebep olan bozuk/HTML dosyalar oluşmaz.
+# GÜNCELLEME: Hugging Face mirrorları güncellendi (crj/dl-ws ve ezioruan - public erişim için)
 RUN mkdir -p /app/.assets/models && \
     echo "Downloading RetinaFace..." && \
-    curl -fL --retry 5 -o /app/.assets/models/retinaface_10g.onnx https://huggingface.co/facefusion/models/resolve/main/retinaface_10g.onnx && \
+    curl -fL --retry 5 -o /app/.assets/models/retinaface_10g.onnx https://huggingface.co/crj/dl-ws/resolve/main/retinaface_10g.onnx && \
     echo "Downloading Face Landmarker..." && \
-    curl -fL --retry 5 -o /app/.assets/models/face_landmarker_68_5.onnx https://huggingface.co/facefusion/models/resolve/main/face_landmarker_68_5.onnx && \
+    curl -fL --retry 5 -o /app/.assets/models/face_landmarker_68_5.onnx https://huggingface.co/crj/dl-ws/resolve/main/face_landmarker_68_5.onnx && \
     echo "Downloading 2dfan4..." && \
-    curl -fL --retry 5 -o /app/.assets/models/2dfan4.onnx https://huggingface.co/facefusion/models/resolve/main/2dfan4.onnx && \
+    curl -fL --retry 5 -o /app/.assets/models/2dfan4.onnx https://huggingface.co/crj/dl-ws/resolve/main/2dfan4.onnx && \
     echo "Downloading Inswapper (THE FACE SWAPPER)..." && \
-    curl -fL --retry 5 -o /app/.assets/models/inswapper_128.onnx https://huggingface.co/facefusion/models/resolve/main/inswapper_128.onnx && \
+    curl -fL --retry 5 -o /app/.assets/models/inswapper_128.onnx https://huggingface.co/ezioruan/inswapper_128.onnx/resolve/main/inswapper_128.onnx && \
     echo "Downloading GFPGAN (FACE ENHANCER)..." && \
-    curl -fL --retry 5 -o /app/.assets/models/GFPGANv1.4.pth https://huggingface.co/facefusion/models/resolve/main/GFPGANv1.4.pth
+    curl -fL --retry 5 -o /app/.assets/models/GFPGANv1.4.pth https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
