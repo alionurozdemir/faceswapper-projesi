@@ -26,6 +26,7 @@ def swap_faces(source_image_path, target_image_path, enhance_face=True, enhance_
 
   cli_args = [
     '--headless',
+    '--skip-download',
     '-s', source_image_path,
     '-t', target_image_path,
     '-o', output_image_path,
