@@ -40,6 +40,12 @@ Repository'niz private ise:
 - Branch: `main` (veya kullandığınız branch)
 - Coolify otomatik olarak Dockerfile'ı bulacaktır
 
+#### ✅ **Alternatif: Docker Image (Daha Hızlı)**
+Eğer yerel bilgisayarınızda build alıp Docker Hub'a push'ladıysanız (örn: `alionurozdemir/faceswapper:v1`):
+1. Deployment kaynağı olarak **Docker Image** seçin.
+2. Docker Image: `alionurozdemir/faceswapper:v1`
+3. Bu yöntem sunucuda build işlemi yapmaz, daha hızlı deploy olur ve sunucu kaynağını tüketmez.
+
 ### 2. Git Repository Bağlantısı (Git Based seçtiyseniz)
 
 1. **Source** bölümünde:
@@ -181,6 +187,17 @@ izleyebilirsiniz.
 - Memory limit'i artırın (7GB → 6GB)
 - CPU thread sayısını azaltın (OMP_NUM_THREADS=1)
 - Logları detaylı inceleyin
+
+### Problem: "InvalidProtobuf" Hatası (Model Yükleme Sorunu)
+
+**Hata:** `onnxruntime.capi.onnxruntime_pybind11_state.InvalidProtobuf: [ONNXRuntimeError] : 7 : INVALID_PROTOBUF`
+
+**Neden:** Model dosyaları indirilirken hata oluşmuş (401/404) ancak `curl` hata vermek yerine HTML hata sayfasını `.onnx` dosyası olarak kaydetmiş.
+
+**Çözüm:**
+- Dockerfile'da `curl` komutlarına `-f` (fail on error) flag'i eklendi.
+- Model indirme linkleri çalışan public mirrorlarla güncellendi.
+- "Redeploy" yaparak temiz kurulum sağlayın.
 
 ### Problem: "Minimum memory limit allowed is 6MB" Hatası
 
